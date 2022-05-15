@@ -13,7 +13,7 @@ import java.util.List;
 @Document(collection = "stage")
 @ToString
 @Builder
-public class Stage {
+public class Workspace {
 
     @Id
     private String id;
