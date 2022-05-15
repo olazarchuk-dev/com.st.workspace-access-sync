@@ -17,7 +17,3 @@ spring:
 
 mongock:
   change-logs-scan-package: com.st.workspace.config
-
-app:
-  sync:
-    update-expiration-seconds: 30

@@ -8,7 +8,6 @@ import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl
 import com.st.workspace.entity.Stage;
 import com.st.workspace.utils.GzipUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -24,16 +23,14 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @ChangeLog
 @Slf4j
 public class DecompressPayloadSyncChangeLog {
+    public final int PER_QUERY_LIMIT = 5;
+    public final int UPDATE_EXPIRATION_SECONDS = 30;
+
     private ObjectMapper objectMapper = new Jackson2ObjectMapperBuilder().build();
 
     private final AtomicInteger allCounter = new AtomicInteger(0);
     private final AtomicInteger successfulUpdatesCounter = new AtomicInteger(0);
     private final AtomicInteger warningUpdatesCounter = new AtomicInteger(0);
-
-    public final int PER_QUERY_LIMIT = 5;
-
-    @Value("${app.sync.update-expiration-seconds}")
-    public int updateExpirationSeconds = 30;
 
     @ChangeSet(order = "001", id = "Sync script Payload decompress on workspace.Stage", author = "admin", runAlways = true)
     public void syncPayloadDecodeOnStage(MongockTemplate mongockTemplate) {
@@ -65,7 +62,7 @@ public class DecompressPayloadSyncChangeLog {
     }
 
     private Query getStageQuery() {
-        var ltExpirationDate = Instant.now().minusSeconds(updateExpirationSeconds).toEpochMilli();
+        var ltExpirationDate = Instant.now().minusSeconds(UPDATE_EXPIRATION_SECONDS).toEpochMilli();
         var criteriaExpirationUpdate = Criteria.where("updatedAt").lt(ltExpirationDate);
         var query = Query.query(new Criteria().andOperator(criteriaExpirationUpdate));
         query.fields().include("_id", "payload");
