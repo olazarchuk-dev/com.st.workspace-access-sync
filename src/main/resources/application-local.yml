@@ -1,0 +1,9 @@
+logging:
+  level:
+    com.st.workspace: debug
+
+spring:
+  data.mongodb:
+    database: expense-tracker
+    host: localhost
+    port: 27017
