@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class Stage {
     private String owner;
     private String payload;
     private Chart chart;
+    @Version
     private Integer revision;
     private String screenshot;
     private Integer layout;
