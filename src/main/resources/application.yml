@@ -9,8 +9,8 @@ spring:
   application:
     name: com.st.workspace
   data.mongodb:
-#    password: phouwahshaeve2aireiC
-#    username: dev-user
+    password: phouwahshaeve2aireiC
+    username: dev-user
     database: workspaces
     host: stl-docdb-be-dev01.cluster-c4gebpgnh17l.us-east-1.docdb.amazonaws.com
     port: 27021
