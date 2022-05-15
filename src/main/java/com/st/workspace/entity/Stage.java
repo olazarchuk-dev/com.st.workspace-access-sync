@@ -23,7 +23,7 @@ public class Stage {
     private String oldid;
     private String owner;
     private String payload;
-    private PayloadDecode payloadDecode;
+    private Chart chart;
     private Integer revision;
     private String screenshot;
     private Integer layout;
@@ -33,7 +33,7 @@ public class Stage {
     private Long updatedAt;
 
     @Data
-    public static class PayloadDecode {
+    public static class Chart {
         private String id;
         private Instrument instrument;
         private Long timeInterval;

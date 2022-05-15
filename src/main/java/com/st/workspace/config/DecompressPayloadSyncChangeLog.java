@@ -45,7 +45,7 @@ public class DecompressPayloadSyncChangeLog {
                     .forEach(stage -> {
                         var criteriaUpdate = where("_id").is(stage.getId());
                         Update stageUpdate = new Update()
-                                .set("payloadDecode", stage.getPayloadDecode())
+                                .set("chart", stage.getChart())
                                 .set("updatedAt", stage.getUpdatedAt());
                         mongockTemplate.findAndModify(new Query(criteriaUpdate), stageUpdate, Stage.class);
                     });
@@ -75,8 +75,8 @@ public class DecompressPayloadSyncChangeLog {
         allCounter.getAndIncrement();
         try {
             var decompressPayload = GzipUtil.toDecompress(entity.getPayload(), UTF_8);
-            var payloadDecode = getPayloadDecode(decompressPayload);
-            entity.setPayloadDecode(payloadDecode);
+            var chart = payloadToChart(decompressPayload);
+            entity.setChart(chart);
             entity.setUpdatedAt(Instant.now().toEpochMilli());
             successfulUpdatesCounter.getAndIncrement();
         } catch (Exception ex) {
@@ -87,11 +87,11 @@ public class DecompressPayloadSyncChangeLog {
         return entity;
     }
 
-    private Stage.PayloadDecode getPayloadDecode(String payload) throws JsonProcessingException {
-        var payloadDecodeSubstrStart = 40;
-        var payloadDecodeSubstrEnd = payload.length() - 1;
-        var payloadDecode = payload.substring(payloadDecodeSubstrStart, payloadDecodeSubstrEnd);
+    private Stage.Chart payloadToChart(String payload) throws JsonProcessingException {
+        var payloadChartSubstrStart = 40;
+        var payloadChartSubstrEnd = payload.length() - 1;
+        var payloadChart = payload.substring(payloadChartSubstrStart, payloadChartSubstrEnd);
 
-        return objectMapper.readValue(payloadDecode, Stage.PayloadDecode.class);
+        return objectMapper.readValue(payloadChart, Stage.Chart.class);
     }
 }
