@@ -24,7 +24,7 @@ public class Workspace {
     private String oldid;
     private String owner;
     private String payload;
-    private Chart chart;
+    private List<Chart> chart;
     @Version
     private Integer revision;
     private String screenshot;
@@ -35,6 +35,7 @@ public class Workspace {
     private Long updatedAt;
 
     @Data
+    @Builder
     public static class Chart {
         private String id;
         private Instrument instrument;
@@ -47,6 +48,7 @@ public class Workspace {
         private String barType;
 
         @Data
+        @Builder
         public static class Instrument {
             private String symbol;
             private String company;

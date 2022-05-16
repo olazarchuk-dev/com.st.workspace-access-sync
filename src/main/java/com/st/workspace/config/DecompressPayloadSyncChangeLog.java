@@ -1,23 +1,23 @@
 package com.st.workspace.config;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.st.workspace.entity.Workspace;
 import com.st.workspace.utils.GzipUtil;
+import com.st.workspace.utils.WorkspaceConvertor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.st.workspace.utils.GzipUtil.UTF_8;
+import static java.time.Instant.now;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @ChangeLog
@@ -62,9 +62,9 @@ public class DecompressPayloadSyncChangeLog {
     }
 
     private Query getWorkspaceQuery() {
-        var ltExpirationDate = Instant.now().minusSeconds(UPDATE_EXPIRATION_SECONDS).toEpochMilli();
-        var criteriaExpirationUpdate = Criteria.where("updatedAt").lt(ltExpirationDate);
-        var query = Query.query(new Criteria().andOperator(criteriaExpirationUpdate));
+        var ltExpirationDate = now().minusSeconds(UPDATE_EXPIRATION_SECONDS).toEpochMilli();
+        var criteriaUpdate = Criteria.where("updatedAt").lt(ltExpirationDate);
+        var query = Query.query(new Criteria().andOperator(criteriaUpdate));
         query.fields().include("_id", "payload");
         query.limit(PER_QUERY_LIMIT);
 
@@ -74,10 +74,10 @@ public class DecompressPayloadSyncChangeLog {
     private Workspace setWorkspaceUpdate(Workspace workspace) {
         allCounter.getAndIncrement();
         try {
-            var decompressPayload = GzipUtil.toDecompress(workspace.getPayload(), UTF_8);
-            var chart = payloadToChart(decompressPayload);
+            var json = GzipUtil.toDecompress(workspace.getPayload(), UTF_8);
+            var chart = WorkspaceConvertor.toCharts(json);
             workspace.setChart(chart);
-            workspace.setUpdatedAt(Instant.now().toEpochMilli());
+            workspace.setUpdatedAt(now().toEpochMilli());
             successfulUpdatesCounter.getAndIncrement();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -85,13 +85,5 @@ public class DecompressPayloadSyncChangeLog {
         }
 
         return workspace;
-    }
-
-    private Workspace.Chart payloadToChart(String payload) throws JsonProcessingException {
-        var payloadChartSubstrStart = 40;
-        var payloadChartSubstrEnd = payload.length() - 1;
-        var payloadChart = payload.substring(payloadChartSubstrStart, payloadChartSubstrEnd);
-
-        return objectMapper.readValue(payloadChart, Workspace.Chart.class);
     }
 }
