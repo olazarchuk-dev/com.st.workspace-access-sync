@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 
 @Data
-@Document(collection = "stage")
+@Document(collection = "private")
 @ToString
 @Builder
 public class Workspace {
@@ -24,7 +24,7 @@ public class Workspace {
     private String oldid;
     private String owner;
     private String payload;
-    private List<Chart> chart;
+    private List<Chart> charts;
     @Version
     private Integer revision;
     private String screenshot;
